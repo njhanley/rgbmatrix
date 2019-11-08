@@ -45,8 +45,8 @@ var DefaultConfig = Config{
 
 type Matrix struct {
 	*image.RGBA
-	canvas *C.struct_LedCanvas
 	matrix *C.struct_RGBLedMatrix
+	canvas *C.struct_LedCanvas
 }
 
 func New(cfg Config) (*Matrix, error) {
@@ -56,21 +56,21 @@ func New(cfg Config) (*Matrix, error) {
 	}
 	return &Matrix{
 		RGBA:   image.NewRGBA(image.Rect(0, 0, cfg.Columns*cfg.ChainLength, cfg.Rows*cfg.Parallel)),
-		canvas: C.led_matrix_create_offscreen_canvas(matrix),
 		matrix: matrix,
+		canvas: C.led_matrix_create_offscreen_canvas(matrix),
 	}, nil
 }
 
-func (ma *Matrix) Close() {
-	C.led_matrix_delete(ma.matrix)
+func (m *Matrix) Close() {
+	C.led_matrix_delete(m.matrix)
 }
 
-func (ma *Matrix) Swap() {
-	for y := ma.Rect.Min.Y; y < ma.Rect.Max.Y; y++ {
-		for x := ma.Rect.Min.X; x < ma.Rect.Max.X; x++ {
-			rgba := ma.RGBAAt(x, y)
+func (m *Matrix) Swap() {
+	for y := m.Rect.Min.Y; y < m.Rect.Max.Y; y++ {
+		for x := m.Rect.Min.X; x < m.Rect.Max.X; x++ {
+			rgba := m.RGBAAt(x, y)
 			C.led_canvas_set_pixel(
-				ma.canvas,
+				m.canvas,
 				C.int(x),
 				C.int(y),
 				C.uint8_t(rgba.R),
@@ -79,5 +79,5 @@ func (ma *Matrix) Swap() {
 			)
 		}
 	}
-	ma.canvas = C.led_matrix_swap_on_vsync(ma.matrix, ma.canvas)
+	m.canvas = C.led_matrix_swap_on_vsync(m.matrix, m.canvas)
 }
