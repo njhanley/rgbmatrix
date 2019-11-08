@@ -9,7 +9,6 @@ import "C"
 import (
 	"errors"
 	"image"
-	"image/color"
 )
 
 // Config is a Matrix configuration.
@@ -91,46 +90,4 @@ func (ma *Matrix) Swap() {
 		}
 	}
 	ma.canvas = C.led_matrix_swap_on_vsync(ma.matrix, ma.canvas)
-}
-
-// Size of the canvas in pixels.
-func (ma *Matrix) Size() image.Point {
-	return image.Point{ma.width, ma.height}
-}
-
-// SwapOnVSync swaps the front and back canvases.
-// Call this method after modifying the back canvas to display your changes.
-func (ma *Matrix) SwapOnVSync() {
-	ma.canvas = C.led_matrix_swap_on_vsync(ma.matrix, ma.canvas)
-}
-
-// Clear the back canvas.
-func (ma *Matrix) Clear() {
-	C.led_canvas_clear(ma.canvas)
-}
-
-func toRGB(c color.Color) (r, g, b C.uint8_t) {
-	cl := color.RGBAModel.Convert(c).(color.RGBA)
-	return C.uint8_t(cl.R), C.uint8_t(cl.G), C.uint8_t(cl.B)
-}
-
-// Fill the back canvas with the given color.
-func (ma *Matrix) Fill(c color.Color) {
-	r, g, b := toRGB(c)
-	C.led_canvas_fill(ma.canvas, r, g, b)
-}
-
-// Set the color of a pixel on the back canvas.
-func (ma *Matrix) Set(x, y int, c color.Color) {
-	r, g, b := toRGB(c)
-	C.led_canvas_set_pixel(ma.canvas, C.int(x), C.int(y), r, g, b)
-}
-
-// Draw an image on the back canvas.
-func (ma *Matrix) Draw(m image.Image) {
-	for y := 0; y < ma.height; y++ {
-		for x := 0; x < ma.width; x++ {
-			ma.Set(x, y, m.At(x, y))
-		}
-	}
 }
