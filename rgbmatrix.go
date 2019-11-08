@@ -50,8 +50,6 @@ type Matrix struct {
 	*image.RGBA
 	canvas *C.struct_LedCanvas
 	matrix *C.struct_RGBLedMatrix
-	width  int
-	height int
 }
 
 // New initializes and returns a Matrix.
@@ -65,8 +63,6 @@ func New(cfg Config) (*Matrix, error) {
 		RGBA:   image.NewRGBA(image.Rect(0, 0, cfg.Columns*cfg.ChainLength, cfg.Rows*cfg.Parallel)),
 		canvas: C.led_matrix_create_offscreen_canvas(matrix),
 		matrix: matrix,
-		width:  cfg.Columns * cfg.ChainLength,
-		height: cfg.Rows * cfg.Parallel,
 	}, nil
 }
 
