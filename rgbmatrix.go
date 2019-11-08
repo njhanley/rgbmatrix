@@ -11,13 +11,12 @@ import (
 	"image"
 )
 
-// Config is a Matrix configuration.
 type Config struct {
-	Rows              int // Number of rows on a single panel
-	Columns           int // Number of columns on a single panel
-	ChainLength       int // Number of daisy-chained panels
-	Parallel          int // Number of parallel chains
-	Brightness        int // Brightness percentage
+	Rows              int
+	Columns           int
+	ChainLength       int
+	Parallel          int
+	Brightness        int
 	PWMBits           int
 	PWMLSBNanoseconds int
 }
@@ -44,16 +43,12 @@ var DefaultConfig = Config{
 	PWMLSBNanoseconds: 130,
 }
 
-// Matrix represents an LED matrix.
-// It is not safe to call methods on a Matrix concurrently.
 type Matrix struct {
 	*image.RGBA
 	canvas *C.struct_LedCanvas
 	matrix *C.struct_RGBLedMatrix
 }
 
-// New initializes and returns a Matrix.
-// The rpi-rgb-led-matrix library may write to stderr.
 func New(cfg Config) (*Matrix, error) {
 	matrix := C.led_matrix_create_from_options(cfg.toRGBLedMatrixOptions(), nil, nil)
 	if matrix == nil {
@@ -66,7 +61,6 @@ func New(cfg Config) (*Matrix, error) {
 	}, nil
 }
 
-// Close frees allocated resources and resets the hardware.
 func (ma *Matrix) Close() {
 	C.led_matrix_delete(ma.matrix)
 }
