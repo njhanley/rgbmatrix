@@ -48,6 +48,7 @@ var DefaultConfig = Config{
 // Matrix represents an LED matrix.
 // It is not safe to call methods on a Matrix concurrently.
 type Matrix struct {
+	*image.RGBA
 	canvas *C.struct_LedCanvas
 	matrix *C.struct_RGBLedMatrix
 	width  int
@@ -61,8 +62,8 @@ func New(cfg Config) (*Matrix, error) {
 	if matrix == nil {
 		return nil, errors.New("failed to initialize matrix")
 	}
-
 	return &Matrix{
+		RGBA:   image.NewRGBA(image.Rect(0, 0, cfg.Columns*cfg.ChainLength, cfg.Rows*cfg.Parallel)),
 		canvas: C.led_matrix_create_offscreen_canvas(matrix),
 		matrix: matrix,
 		width:  cfg.Columns * cfg.ChainLength,
@@ -73,6 +74,23 @@ func New(cfg Config) (*Matrix, error) {
 // Close frees allocated resources and resets the hardware.
 func (ma *Matrix) Close() {
 	C.led_matrix_delete(ma.matrix)
+}
+
+func (ma *Matrix) Swap() {
+	for y := ma.Rect.Min.Y; y < ma.Rect.Max.Y; y++ {
+		for x := ma.Rect.Min.X; x < ma.Rect.Max.X; x++ {
+			rgba := ma.RGBAAt(x, y)
+			C.led_canvas_set_pixel(
+				ma.canvas,
+				C.int(x),
+				C.int(y),
+				C.uint8_t(rgba.R),
+				C.uint8_t(rgba.G),
+				C.uint8_t(rgba.B),
+			)
+		}
+	}
+	ma.canvas = C.led_matrix_swap_on_vsync(ma.matrix, ma.canvas)
 }
 
 // Size of the canvas in pixels.
