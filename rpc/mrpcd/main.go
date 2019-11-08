@@ -47,9 +47,6 @@ func main() {
 
 	go func() {
 		for {
-			ma.Clear()
-			ma.SwapOnVSync()
-
 			conn, err := l.Accept()
 			if err != nil {
 				log.Print("l.Accept: ", err)
