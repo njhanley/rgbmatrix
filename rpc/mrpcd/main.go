@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/fogleman/gg"
 	"github.com/njhanley/rgbmatrix"
 	"github.com/njhanley/rgbmatrix/rpc/server"
 	"golang.org/x/sys/unix"
@@ -33,17 +32,6 @@ func main() {
 	}
 	defer ma.Close()
 
-	p := ma.Size()
-	width, height := float64(p.X), float64(p.Y)
-	dc := gg.NewContext(p.X, p.Y)
-	dc.SetRGBA255(0xff, 0x00, 0x00, 0x40)
-	dc.SetLineWidth(1)
-	dc.DrawRectangle(0, 0, width, height)
-	dc.DrawLine(0, 0, width, height)
-	dc.DrawLine(width, 0, 0, height)
-	dc.Stroke()
-	m := dc.Image()
-
 	err = rpc.Register(server.New(ma))
 	if err != nil {
 		log.Print("rpc.Register: ", err)
@@ -60,7 +48,6 @@ func main() {
 	go func() {
 		for {
 			ma.Clear()
-			ma.Draw(m)
 			ma.SwapOnVSync()
 
 			conn, err := l.Accept()
